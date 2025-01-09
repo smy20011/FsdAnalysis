@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { WebR } from "webr";
+import regression from "regression";
 
 export interface FsdData {
   version: string;
@@ -62,28 +62,17 @@ export function aggregate_data(data: FsdData[], aggregation_method: "sum" | "bes
 
 export async function fit_fsd_data(data: FsdData[]): Promise<ExpCurve | null> {
   let x = data.map(d => d.min_date.getTime());
+  let minX = _.min(x)!!;
+  let maxX = _.max(x)!!;
   let y = data.map(d => d.mttf);
   if (x.length == 0 || y.length == 0) {
     return null;
   }
-  const webR = new WebR();
-  await webR.init();
-  const r_code = `
-  x <- c(${x.join(",")})
-  y <- c(${y.join(",")})
-  y_log <- log(y)
-  linear_model <- lm(y_log ~ x)
-  b_est <- coef(linear_model)[2]
-  a_est <- exp(coef(linear_model)[1])
-  fsd_day <- (log(17000) - log(a_est)) / b_est
-  new_x <- seq(from=min(x), to=max(x) * 1.01, length.out=50)
-  new_y <- a_est * exp(b_est * new_x)
-  list(a_est, b_est, fsd_day, new_x, new_y)
-  `;
-  console.log(r_code);
-  const result = await webR.evalR(r_code);
-  const result_js: any = await result.toJs();
-  const [a, b, [fsdDate], newX, pred] = result_js.values.map((i: any) => i.values);
+  const result = regression.exponential(_.zip(x, y) as [number, number][], {precision: 30});
+  const [a, b] = result.equation;
+  const newX = _.range(minX, maxX * 1.02, (maxX * 1.02 - minX) / 50);
+  const pred = newX.map((x) => result.predict(x)[1]);
+  const fsdDate = (Math.log(17000) - Math.log(a)) / b;
   let fit: ExpCurve = {
     a, b,
     newX,
