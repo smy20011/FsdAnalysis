@@ -81,7 +81,7 @@
     <div class="text-3xl font-bold text-gray-900 sm:text-4xl">
         Tesla Full Self Drive Data & Prediction
     </div>
-    <div class="my-6 flex flex-row flex-wrap">
+    <div class="my-10 flex flex-row flex-wrap">
         <div class="mx-auto max-w-xs lg:gap-y-4 gap-y-1 min-w-xs">
             <div
                 class="order-first font-semibold tracking-tight text-gray-900 text-3xl"
