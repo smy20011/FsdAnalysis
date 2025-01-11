@@ -41,26 +41,26 @@ export function aggregate_data(data: FsdData[], aggregation_method: "sum" | "bes
         const min_date = _.min(values.map(v => v.min_date))!!;
 
         return {
-            version,
-            min_date,
-            success_rate: 1 - total_failure * 1.0 / runs,
-            runs,
-            failure: total_failure,
-            city_miles: total_miles,
-            mttf: total_miles / total_failure
+          version,
+          min_date,
+          success_rate: 1 - total_failure * 1.0 / runs,
+          runs,
+          failure: total_failure,
+          city_miles: total_miles,
+          mttf: total_miles / total_failure
         }
       } else {
         let filtered = values.filter(d => d.failure >= 5);
         return _.maxBy(filtered, d => d.mttf);
       }
-  })
-  .filter(d => d !== undefined)
-  .filter(d => d.failure > 5)
-  .value();
+    })
+    .filter(d => d !== undefined)
+    .filter(d => d.failure > 5)
+    .value();
   return aggregated;
 }
 
-export async function fit_fsd_data(data: FsdData[]): Promise<ExpCurve | null> {
+export function fit_fsd_data(data: FsdData[], mttf_target: number): ExpCurve | null {
   let x = data.map(d => d.min_date.getTime());
   let minX = _.min(x)!!;
   let maxX = _.max(x)!!;
@@ -68,11 +68,11 @@ export async function fit_fsd_data(data: FsdData[]): Promise<ExpCurve | null> {
   if (x.length == 0 || y.length == 0) {
     return null;
   }
-  const result = regression.exponential(_.zip(x, y) as [number, number][], {precision: 30});
+  const result = regression.exponential(_.zip(x, y) as [number, number][], { precision: 30 });
   const [a, b] = result.equation;
   const newX = _.range(minX, maxX * 1.02, (maxX * 1.02 - minX) / 50);
   const pred = newX.map((x) => result.predict(x)[1]);
-  const fsdDate = (Math.log(17000) - Math.log(a)) / b;
+  const fsdDate = (Math.log(mttf_target) - Math.log(a)) / b;
   let fit: ExpCurve = {
     a, b,
     newX,
