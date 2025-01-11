@@ -5,5 +5,4 @@
 
 <main>
   <FittingChart></FittingChart>
-  <TableData></TableData>
 </main>
