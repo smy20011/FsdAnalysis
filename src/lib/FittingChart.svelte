@@ -76,7 +76,7 @@
 </script>
 
 <div
-    class="m-6 bg-slate-200 rounded-md p-6 max-w-7xl mx-auto py-24 text-center"
+    class="m-6 bg-slate-200 rounded-md p-6 max-w-7xl mx-auto py-24 text-center shadow-md"
 >
     <div class="text-3xl font-bold text-gray-900 sm:text-4xl">
         Tesla Full Self Drive Data & Prediction
@@ -129,4 +129,10 @@
         </div>
     </div>
     <div bind:this={div} role="img" class=""></div>
+    <div>
+        Data comes from Tesla Fsd <a
+            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+            href="https://teslafsdtracker.com">Tracker</a
+        >
+    </div>
 </div>
