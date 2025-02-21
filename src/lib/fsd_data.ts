@@ -56,6 +56,7 @@ export function aggregate_data(data: FsdData[], aggregation_method: "sum" | "bes
     })
     .filter(d => d !== undefined)
     .filter(d => d.failure > 5)
+    .sortBy(d => d.min_date)
     .value();
   return aggregated;
 }
